@@ -49,11 +49,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float RefreshDelay = 10.f;
+	FString Host = "";
 
 	UFUNCTION()
 	void UpdatePodsStatus();
 
-	void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
+	void OnPodsResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	UPROPERTY(BlueprintAssignable)
 	FPodsUpdateEvent OnPodsUpdate;
