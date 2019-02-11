@@ -23,14 +23,16 @@ struct FPodModel
 
 public:
 	UPROPERTY(BlueprintReadOnly)
-		FString Name;
+	FString Name;
+
 	UPROPERTY(BlueprintReadOnly)
 	FString Namespace;
+
 	UPROPERTY(BlueprintReadOnly)
 	FString App;
 
 	UPROPERTY(BlueprintReadOnly)
-	FString Status;
+	FString Phase;
 };
 
 // END STRUCTURES

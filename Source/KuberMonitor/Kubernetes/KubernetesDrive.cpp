@@ -7,7 +7,7 @@ UKubernetesDrive::UKubernetesDrive()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	Http = &FHttpModule::Get();
 }
@@ -42,7 +42,20 @@ void UKubernetesDrive::OnPodsResponseReceived(FHttpRequestPtr Request, FHttpResp
 
 	//Deserialize the json data given Reader and the actual object to deserialize 
 	if (FJsonSerializer::Deserialize(Reader, JsonObject)) {
-		//Get the value of the json object by field name 
+		TArray<FPodModel> PodsArray;
+		TArray<TSharedPtr<FJsonValue>> Items = JsonObject->GetArrayField("items");
+		for (TSharedPtr<FJsonValue> PodDefinition : Items) {
+			FPodModel PodModel;
+			auto Metadata = PodDefinition->AsObject()->GetObjectField("metadata");
+			PodModel.Name = Metadata->GetStringField("name");
+			PodModel.Namespace = Metadata->GetStringField("namespace");
+			PodModel.App = Metadata->GetObjectField("labels")->GetStringField("app");
+
+			auto Status = PodDefinition->AsObject()->GetObjectField("status");
+			PodModel.Phase = Status->GetStringField("phase");
+		}
+
+		OnPodsUpdate.Broadcast(PodsArray);
 	}
 }
 
@@ -58,6 +71,6 @@ void UKubernetesDrive::BeginPlay()
 // Called every frame
 void UKubernetesDrive::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	//Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
