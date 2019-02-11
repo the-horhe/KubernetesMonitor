@@ -24,7 +24,7 @@ void UKubernetesDrive::UpdatePodsStatus()
 	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
 	Request->OnProcessRequestComplete().BindUObject(this, &UKubernetesDrive::OnPodsResponseReceived);
 	//This is the url on which to process the request 
-	Request->SetURL("https://62ae0b70.ngrok.io/api/v1/namespaces/retail-partners-dev/pods?limit=500"); // TODO: host should be a parameter
+	Request->SetURL(Host + "/api/v1/namespaces/retail-partners-dev/pods?limit=500"); // TODO: host should be a parameter
 	Request->SetVerb("GET");
 	Request->ProcessRequest();
 

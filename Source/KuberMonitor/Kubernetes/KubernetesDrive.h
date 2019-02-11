@@ -49,6 +49,8 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float RefreshDelay = 10.f;
+
+	UPROPERTY(EditAnywhere)
 	FString Host = "";
 
 	UFUNCTION()
