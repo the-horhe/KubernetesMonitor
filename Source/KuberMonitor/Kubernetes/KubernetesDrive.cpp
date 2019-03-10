@@ -15,7 +15,6 @@ UKubernetesDrive::UKubernetesDrive()
 
 void UKubernetesDrive::UpdatePodsStatus()
 {
-	UE_LOG(LogTemp, Warning, TEXT("POD STATUS"));
 	if (Host == "") {
 		UE_LOG(LogTemp, Error, TEXT("Host no defined"));
 		return;
@@ -58,6 +57,8 @@ void UKubernetesDrive::OnPodsResponseReceived(FHttpRequestPtr Request, FHttpResp
 			PodsArray.Add(PodModel);
 		}
 
+		FStateDiff Diff = GameState->GetStateDiff(&PodsArray);
+
 		OnPodsUpdate.Broadcast(PodsArray);
 	}
 }
@@ -68,12 +69,12 @@ void UKubernetesDrive::BeginPlay()
 	Super::BeginPlay();
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UKubernetesDrive::UpdatePodsStatus, RefreshDelay, true, 0.f);
+	GameState = GetWorld()->GetGameState<AKuberMonitorGameState>();
 }
 
 
 // Called every frame
 void UKubernetesDrive::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	//Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 

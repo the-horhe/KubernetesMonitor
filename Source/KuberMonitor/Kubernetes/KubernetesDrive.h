@@ -7,40 +7,14 @@
 
 #include "Runtime/Online/HTTP/Public/Http.h"
 #include "Runtime/Json/Public/Serialization/JsonSerializer.h"
+#include "PodModel.h"
+#include "KuberMonitorGameState.h"
 
 #include "KubernetesDrive.generated.h"
 
-UENUM(BlueprintType)
-enum PodStatus { Pending, Running, Succeeded, Failed, Unknown };
-
-// STRUCTURES
-// TODO: Move models to separate class
-
-USTRUCT(BlueprintType)
-struct FPodModel
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadOnly)
-	FString Name;
-
-	UPROPERTY(BlueprintReadOnly)
-	FString Namespace;
-
-	UPROPERTY(BlueprintReadOnly)
-	FString App;
-
-	// @see https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
-	// TODO: enum
-	UPROPERTY(BlueprintReadOnly)
-	FString Phase;
-};
-
-// END STRUCTURES
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPodsUpdateEvent, TArray<FPodModel>, PodsArray);
 
+// TODO: move gamestate interraction to separate class
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class KUBERMONITOR_API UKubernetesDrive : public UActorComponent
 {
@@ -70,9 +44,10 @@ protected:
 	virtual void BeginPlay() override;
 	FTimerHandle TimerHandle;
 
+	AKuberMonitorGameState* GameState;
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
 };
