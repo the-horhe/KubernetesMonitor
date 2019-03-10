@@ -13,7 +13,7 @@ class KUBERMONITOR_API AKuberMonitorGameState : public AGameStateBase
 	GENERATED_BODY()
 
 private:
-	TArray<FPodModel> KnownPods;
+	TArray<FPodModel> PodsSnapshot;
 	TArray<FPodModel> GetNewPods(TArray<FPodModel>*) const;
 	TArray<FPodModel> GetDeletedPods(TArray<FPodModel>*) const;
 	TArray<FPodModel> GetPhaseChangedPods(TArray<FPodModel>*) const;

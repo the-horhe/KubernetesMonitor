@@ -58,8 +58,7 @@ void UKubernetesDrive::OnPodsResponseReceived(FHttpRequestPtr Request, FHttpResp
 		}
 
 		FStateDiff Diff = GameState->GetStateDiff(&PodsArray);
-
-		OnPodsUpdate.Broadcast(PodsArray);
+		OnPodsUpdate.Broadcast(Diff);
 	}
 }
 

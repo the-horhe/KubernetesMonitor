@@ -12,7 +12,7 @@
 
 #include "KubernetesDrive.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPodsUpdateEvent, TArray<FPodModel>, PodsArray);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPodsUpdateEvent, FStateDiff, StateDiff);
 
 // TODO: move gamestate interraction to separate class
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
