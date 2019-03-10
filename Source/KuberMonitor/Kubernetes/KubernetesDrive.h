@@ -31,6 +31,8 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FString App;
 
+	// @see https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
+	// TODO: enum
 	UPROPERTY(BlueprintReadOnly)
 	FString Phase;
 };
