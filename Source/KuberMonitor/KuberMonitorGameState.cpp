@@ -1,12 +1,17 @@
 #include "KuberMonitorGameState.h"
 
-TArray<FPodModel> AKuberMonitorGameState::GetNewPods(TArray<FPodModel>* FullPodsList) const
+TArray<FPodModel> AKuberMonitorGameState::GetNewPods(TArray<FPodModel>* PodsList, FString Namespace) const
 {
+	const TArray<FPodModel>* NamespaceSnapshotPods = PodsSnapshot.Find(Namespace);
+	if (!NamespaceSnapshotPods) {
+		return *PodsList;
+	}
+
 	TArray<FPodModel> NewPods;
-	for (FPodModel ListPod : *FullPodsList) {
+	for (FPodModel ListPod : *PodsList) {
 
 		bool IsPodKnown = false;
-		for (FPodModel SnapshotPod : PodsSnapshot) { // TODO: Replace with TArray.FindByPredicate
+		for (FPodModel SnapshotPod : *NamespaceSnapshotPods) { // TODO: Replace with TArray.FindByPredicate
 			if (SnapshotPod.Name == ListPod.Name) {
 				IsPodKnown = true;
 				break;
@@ -17,25 +22,34 @@ TArray<FPodModel> AKuberMonitorGameState::GetNewPods(TArray<FPodModel>* FullPods
 			NewPods.Add(ListPod);
 			UE_LOG(LogTemp, Warning, TEXT("New POD: %s"), *ListPod.Name);
 		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("POD: %s is KNOWN"), *ListPod.Name);
+		}
+
 	}
 
 	return NewPods;
 }
 
-TArray<FPodModel> AKuberMonitorGameState::GetPhaseChangedPods(TArray<FPodModel>* FullPodsList) const
+TArray<FPodModel> AKuberMonitorGameState::GetPhaseChangedPods(TArray<FPodModel>* PodsList, FString Namespace) const
 {
 	return TArray<FPodModel>();
 }
 
-TArray<FPodModel> AKuberMonitorGameState::GetDeletedPods(TArray<FPodModel>* FullPodsList) const
+TArray<FPodModel> AKuberMonitorGameState::GetDeletedPods(TArray<FPodModel>* PodsList, FString Namespace) const
 {
+	const TArray<FPodModel>* NamespaceSnapshotPods = PodsSnapshot.Find(Namespace);
+	if (!NamespaceSnapshotPods) {
+		return TArray<FPodModel>();
+	}
+	
 	TArray<FPodModel> DeletedPods;
-	for (FPodModel SnapshotPod : PodsSnapshot) {
+	for (FPodModel SnapshotPod : *NamespaceSnapshotPods) {
 
 		UE_LOG(LogTemp, Warning, TEXT("-- Snapshot pod: %s"), *SnapshotPod.Name);
 
 		bool IsPodFoundInList = false;
-		for (FPodModel ListPod : *FullPodsList) { // TODO: Replace with TArray.FindByPredicate
+		for (FPodModel ListPod : *PodsList) { // TODO: Replace with TArray.FindByPredicate
 			if (SnapshotPod.Name == ListPod.Name) {
 				IsPodFoundInList = true;
 				break;
@@ -51,15 +65,17 @@ TArray<FPodModel> AKuberMonitorGameState::GetDeletedPods(TArray<FPodModel>* Full
 	return DeletedPods;
 }
 
-FStateDiff AKuberMonitorGameState::GetStateDiff(TArray<FPodModel>* FullPodsList)
+FStateDiff AKuberMonitorGameState::GetStateDiff(TArray<FPodModel>* PodsList, FString* Namespace)
 {
 	FStateDiff StateDiff = FStateDiff();
 
-	StateDiff.NewPods = GetNewPods(FullPodsList);
-	StateDiff.DeletedPods = GetDeletedPods(FullPodsList);
-	StateDiff.PhaseChangedPods = GetPhaseChangedPods(FullPodsList);
+	UE_LOG(LogTemp, Warning, TEXT("GETTIN STATE DIFF"));
 
-	PodsSnapshot = *FullPodsList;
+	StateDiff.NewPods = GetNewPods(PodsList, *Namespace);
+	StateDiff.DeletedPods = GetDeletedPods(PodsList, *Namespace);
+	StateDiff.PhaseChangedPods = GetPhaseChangedPods(PodsList, *Namespace);
+
+	PodsSnapshot.Add(*Namespace, *PodsList);
 
 	return StateDiff;
 }

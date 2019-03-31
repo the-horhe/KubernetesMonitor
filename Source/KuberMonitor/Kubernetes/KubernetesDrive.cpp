@@ -15,18 +15,27 @@ UKubernetesDrive::UKubernetesDrive()
 
 void UKubernetesDrive::UpdatePodsStatus()
 {
-	if (Host == "") {
-		UE_LOG(LogTemp, Error, TEXT("Host no defined"));
+	FString Host = GameMode->GetKubernetesApiUrl();
+	FString NamespaceListString = GameMode->GetNamespaceList();
+	TArray<FString> NamespaceList;
+
+	if (Host == "" || NamespaceListString == "") {
+		UE_LOG(LogTemp, Error, TEXT("Host or namespace not defined"));
 		return;
 	}
 
-	TSharedRef<IHttpRequest> Request = Http->CreateRequest();
-	Request->OnProcessRequestComplete().BindUObject(this, &UKubernetesDrive::OnPodsResponseReceived);
-	//This is the url on which to process the request 
-	Request->SetURL(Host + "/api/v1/namespaces/retail-partners-dev/pods?limit=500"); // TODO: host should be a parameter
-	Request->SetVerb("GET");
-	Request->ProcessRequest();
-
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *NamespaceListString);
+	NamespaceListString.ParseIntoArray(NamespaceList, TEXT(","), true);
+	for (FString Namespace : NamespaceList) {
+		UE_LOG(LogTemp, Warning, TEXT("Request for NS: %s"), *Namespace);
+		TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+		Request->OnProcessRequestComplete().BindUObject(this, &UKubernetesDrive::OnPodsResponseReceived);
+		//This is the url on which to process the request 
+		Request->SetURL(Host + "/api/v1/namespaces/" + Namespace + "/pods?limit=500"); // TODO: host should be a parameter
+		Request->SetVerb("GET");
+		Request->SetHeader(NAMESPACE_HEADER, Namespace);
+		Request->ProcessRequest();
+	}
 }
 
 void UKubernetesDrive::OnPodsResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
@@ -37,6 +46,7 @@ void UKubernetesDrive::OnPodsResponseReceived(FHttpRequestPtr Request, FHttpResp
 	//Create a reader pointer to read the json data 
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
 	FString RawResponse = Response->GetContentAsString();
+	FString Namespace = Request->GetHeader(NAMESPACE_HEADER);
 
 	UE_LOG(LogTemp, Warning, TEXT("Raw response: %s"), *RawResponse);
 
@@ -57,7 +67,7 @@ void UKubernetesDrive::OnPodsResponseReceived(FHttpRequestPtr Request, FHttpResp
 			PodsArray.Add(PodModel);
 		}
 
-		FStateDiff Diff = GameState->GetStateDiff(&PodsArray);
+		FStateDiff Diff = GameState->GetStateDiff(&PodsArray, &Namespace);
 		OnPodsUpdate.Broadcast(Diff);
 	}
 }
@@ -69,6 +79,7 @@ void UKubernetesDrive::BeginPlay()
 
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UKubernetesDrive::UpdatePodsStatus, RefreshDelay, true, 0.f);
 	GameState = GetWorld()->GetGameState<AKuberMonitorGameState>();
+	GameMode = GetWorld()->GetAuthGameMode<AKuberMonitorGameModeBase>();
 }
 
 

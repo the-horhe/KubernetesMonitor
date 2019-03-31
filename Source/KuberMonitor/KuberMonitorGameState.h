@@ -13,11 +13,11 @@ class KUBERMONITOR_API AKuberMonitorGameState : public AGameStateBase
 	GENERATED_BODY()
 
 private:
-	TArray<FPodModel> PodsSnapshot;
-	TArray<FPodModel> GetNewPods(TArray<FPodModel>*) const;
-	TArray<FPodModel> GetDeletedPods(TArray<FPodModel>*) const;
-	TArray<FPodModel> GetPhaseChangedPods(TArray<FPodModel>*) const;
+	TMap<FString, TArray<FPodModel>> PodsSnapshot;
+	TArray<FPodModel> GetNewPods(TArray<FPodModel>*, FString) const;
+	TArray<FPodModel> GetDeletedPods(TArray<FPodModel>*, FString) const;
+	TArray<FPodModel> GetPhaseChangedPods(TArray<FPodModel>*, FString) const;
 	
 public:
-	 FStateDiff GetStateDiff(TArray<FPodModel>*);
+	 FStateDiff GetStateDiff(TArray<FPodModel>*, FString*);
 };

@@ -9,6 +9,7 @@
 #include "Runtime/Json/Public/Serialization/JsonSerializer.h"
 #include "PodModel.h"
 #include "KuberMonitorGameState.h"
+#include "KuberMonitorGameModeBase.h"
 
 #include "KubernetesDrive.generated.h"
 
@@ -28,9 +29,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	float RefreshDelay = 10.f;
 
-	UPROPERTY(EditAnywhere)
-	FString Host = "";
-
 	UFUNCTION()
 	void UpdatePodsStatus();
 
@@ -45,9 +43,14 @@ protected:
 	FTimerHandle TimerHandle;
 
 	AKuberMonitorGameState* GameState;
+	AKuberMonitorGameModeBase* GameMode;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+private:
+	const FString NAMESPACE_HEADER = "unreal-kubernetes-namespace";
+
 
 };
