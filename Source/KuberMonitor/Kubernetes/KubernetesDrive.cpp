@@ -27,11 +27,11 @@ void UKubernetesDrive::UpdatePodsStatus()
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *NamespaceListString);
 	NamespaceListString.ParseIntoArray(NamespaceList, TEXT(","), true);
 	for (FString Namespace : NamespaceList) {
-		UE_LOG(LogTemp, Warning, TEXT("Request for NS: %s"), *Namespace);
+		UE_LOG(LogTemp, Warning, TEXT("Request for host '%s' and NS: %s"), *Host, *Namespace);
 		TSharedRef<IHttpRequest> Request = Http->CreateRequest();
 		Request->OnProcessRequestComplete().BindUObject(this, &UKubernetesDrive::OnPodsResponseReceived);
 		//This is the url on which to process the request 
-		Request->SetURL(Host + "/api/v1/namespaces/" + Namespace + "/pods?limit=500"); // TODO: host should be a parameter
+		Request->SetURL(Host + "/api/v1/namespaces/" + Namespace + "/pods?limit=500");
 		Request->SetVerb("GET");
 		Request->SetHeader(NAMESPACE_HEADER, Namespace);
 		Request->ProcessRequest();
@@ -40,6 +40,12 @@ void UKubernetesDrive::UpdatePodsStatus()
 
 void UKubernetesDrive::OnPodsResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
+	if (!bWasSuccessful)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid response"));
+		return;
+	}
+
 	//Create a pointer to hold the json serialized data 
 	TSharedPtr<FJsonObject> JsonObject;
 
