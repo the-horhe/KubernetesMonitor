@@ -28,7 +28,7 @@ void UKubernetesDrive::UpdatePodsStatus()
 	NamespaceListString.ParseIntoArray(NamespaceList, TEXT(","), true);
 	for (FString Namespace : NamespaceList) {
 		UE_LOG(LogTemp, Warning, TEXT("Request for host '%s' and NS: %s"), *Host, *Namespace);
-		TSharedRef<IHttpRequest> Request = Http->CreateRequest();
+		auto Request = Http->CreateRequest();
 		Request->OnProcessRequestComplete().BindUObject(this, &UKubernetesDrive::OnPodsResponseReceived);
 		//This is the url on which to process the request 
 		Request->SetURL(Host + "/api/v1/namespaces/" + Namespace + "/pods?limit=500");
