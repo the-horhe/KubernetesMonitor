@@ -11,16 +11,21 @@ struct FPodModel
 
 public:
 	UPROPERTY(BlueprintReadOnly)
-		FString Name;
+	FString Name;
 
 	UPROPERTY(BlueprintReadOnly)
-		FString Namespace;
+	FString Namespace;
 
 	UPROPERTY(BlueprintReadOnly)
-		FString App;
+	FString App;
 
 	// @see https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
 	// TODO: enum
 	UPROPERTY(BlueprintReadOnly)
-		FString Phase;
+	FString Phase;
+
+    // Pod "Ready" condition met
+    // https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-conditions
+	UPROPERTY(BlueprintReadOnly)
+	bool IsReady = false;
 };

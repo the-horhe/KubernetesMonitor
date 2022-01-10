@@ -70,6 +70,18 @@ void UKubernetesDrive::OnPodsResponseReceived(FHttpRequestPtr Request, FHttpResp
 			auto Status = PodDefinition->AsObject()->GetObjectField("status");
 			PodModel.Phase = Status->GetStringField("phase");
 
+			// Detect if pod ready
+			for (auto condition : Status->GetArrayField("conditions")) {
+				FString ConditionType = condition->AsObject()->GetStringField("type");
+				bool ConditionStatus = condition->AsObject()->GetBoolField("status");
+
+				if (ConditionType == "Ready" && ConditionStatus) {
+					PodModel.IsReady = true;
+				}
+
+				UE_LOG(LogTemp, Warning, TEXT("Type: %s"), *ConditionType);
+			}
+
 			PodsArray.Add(PodModel);
 		}
 
